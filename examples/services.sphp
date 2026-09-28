@@ -1,0 +1,5 @@
+services:
+  App\Mailer:
+    bind:
+      host: 'smtp.example.com'
+      port: 587
