@@ -1,8 +1,8 @@
 <?php
 
-namespace Sphp\Sphp\Token;
+namespace Sphp\Token;
 
-use Sphp\Sphp\Support\LexerType;
+use Sphp\Support\LexerType;
 
 final class StringToken extends LexerToken
 {

@@ -1,14 +1,15 @@
 <?php
 
-namespace Sphp\Sphp;
+namespace Sphp;
 
 use Sphp\Exceptions\ConfigurationFormatException;
 use Sphp\Exceptions\InvalidConfigurationFileProvided;
-use Sphp\Sphp\Support\LexerType;
-use Sphp\Sphp\Token\LexerToken;
+use Sphp\Support\LexerType;
+use Sphp\Token\LexerToken;
+use Throwable;
 use UnexpectedValueException;
 
-final class Sphp
+final class Parser
 {
     /**
      * @var LexerToken[]
@@ -24,7 +25,7 @@ final class Sphp
      * Return a PHP array from the content of the provided SPHP content.
      *
      * @param string $content
-     * @throws InvalidConfigurationFileProvided
+     * @throws InvalidConfigurationFileProvided&Throwable
      * @return array<string, mixed>
      */
     public function parse(string $content): array
@@ -47,7 +48,7 @@ final class Sphp
      * Return a PHP array from the content of the provided SPHP file.
      *
      * @param string $filepath
-     * @throws InvalidConfigurationFileProvided
+     * @throws InvalidConfigurationFileProvided&Throwable
      * @return array<string, mixed>
      */
     public function parseFile(string $filepath): array
@@ -162,7 +163,7 @@ final class Sphp
      * if that's not the case.
      *
      * @param LexerType $expected
-     * @throws ConfigurationFormatException
+     * @throws ConfigurationFormatException&Throwable
      * @return void
      */
     private function expect(LexerType $expected): void

@@ -1,10 +1,10 @@
 <?php
 
-namespace Sphp\Sphp;
+namespace Sphp;
 
-use Sphp\Sphp\Support\Grammar;
-use Sphp\Sphp\Token;
-use Sphp\Sphp\Token\LexerToken;
+use Sphp\Support\Grammar;
+use Sphp\Token;
+use Sphp\Token\LexerToken;
 
 final class Lexer
 {

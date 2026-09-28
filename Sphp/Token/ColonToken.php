@@ -1,9 +1,9 @@
 <?php
 
-namespace Sphp\Sphp\Token;
+namespace Sphp\Token;
 
-use Sphp\Sphp\Support\Grammar;
-use Sphp\Sphp\Support\LexerType;
+use Sphp\Support\Grammar;
+use Sphp\Support\LexerType;
 
 final class ColonToken extends LexerToken
 {

@@ -3,7 +3,19 @@
     "type": "library",
     "autoload": {
         "psr-4": {
-            "Sphp\\": "src/"
+            "Sphp\\": "Sphp/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.2",
+        "phpunit/phpunit": "^13.3"
+    },
+    "require": {
+        "php": ">=8.3"
     }
 }
