@@ -1,0 +1,9 @@
+{
+    "name": "devtrope/sphp",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Sphp\\": "src/"
+        }
+    }
+}
