@@ -25,23 +25,11 @@ final class Parser
      * Return a PHP array from the content of the provided SPHP content.
      *
      * @param string $content
-     * @throws InvalidConfigurationFileProvided&Throwable
      * @return array<string, mixed>
      */
     public function parse(string $content): array
     {
-        $result = [];
-        $lexer = new Lexer($content);
-        $this->tokens = $lexer->tokenize();
-
-        while (
-            $this->position < \count($this->tokens) &&
-            LexerType::EOF !== $this->peek()->getType()
-        ) {
-            [$identifier, $value] = $this->parseEntry();
-            $result[$identifier] = $value;
-        }
-        return $result;
+        return $this->parseSPHPToPHP($content);
     }
 
     /**
@@ -53,13 +41,32 @@ final class Parser
      */
     public function parseFile(string $filepath): array
     {
-        $result = [];
         if (false === $content = file_get_contents($filepath)) {
             throw new InvalidConfigurationFileProvided(\sprintf(
                 'Cannot access %s content',
                 $filepath
             ));
         }
+        return $this->parseSPHPToPHP($content);
+    }
+
+    /**
+     * Transform a SPHP string into a PHP array
+     *
+     * @param string $content
+     * @return array<string, mixed>
+     */
+    private function parseSPHPToPHP(string $content): array
+    {
+        /**
+         * We want to reset the cursor position to 0 because if the same instance of the Parser is called multiple times on
+         * the same file the results would be incorrect.
+         */
+        if (0 !== $this->position) {
+            $this->position = 0;
+        }
+        
+        $result = [];
         $lexer = new Lexer($content);
         $this->tokens = $lexer->tokenize();
 
