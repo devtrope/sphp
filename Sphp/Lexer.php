@@ -48,6 +48,17 @@ final class Lexer
                 continue;
             }
 
+            if (Grammar::COMMENT === $character) {
+                while (
+                    $this->position < \strlen($this->input) &&
+                    Grammar::NEW_LINE !== $this->input[$this->position]
+                ) {
+                    $this->position++;
+                }
+                $this->line++;
+                continue;
+            }
+
             if (ctype_space($character)) {
                 $spaces = 0;
                 while (
