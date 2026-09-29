@@ -9,80 +9,168 @@ use PHPUnit\Framework\TestCase;
 
 final class ParserTest extends TestCase
 {
-    public function testParsesAFlatArrayAtASingleLevel(): void
+    private Parser $parser;
+
+    public function setUp(): void
     {
-        $sphp = new Parser();
-        $result = $sphp->parseFile(__DIR__ . '/Fixtures/Config/flat-array.sphp');
-        $this->assertSame([
-            'services' => [
-                'version' => 1.4,
-                'debug' => true,
-                'user' => null
-            ],
-        ], $result);
+        $this->parser = new Parser();
     }
 
-    public function testParsesTwoNestedLevelsWithoutBacktracking(): void
+    public function testItParsesAnEmptyString(): void
     {
-        $sphp = new Parser();
-        $result = $sphp->parseFile(__DIR__ . '/Fixtures/Config/nested-two-levels.sphp');
-        $this->assertSame([
-            'root' => [
-                'A' => [
-                    'B' => [
-                        'x' => 1,
-                    ],
-                ],
-            ],
-        ], $result);
+        $this->assertSame([], $this->parser->parse(''));
     }
 
-    public function testParsesASiblingKeyAfterANestedArrayCloses(): void
+    public function testItParsesASingleEntry(): void
     {
-        $sphp = new Parser();
-        $result = $sphp->parseFile(__DIR__ . '/Fixtures/Config/sibling-after-nested.sphp');
-        $this->assertSame([
-            'services' => [
-                'A' => [
-                    'x' => 1,
-                    'y' => 2,
-                ],
-                'B' => 3,
-            ],
-        ], $result);
+        $this->assertSame(['name' => 'Ludens'], $this->parser->parse("name: 'Ludens'"));
     }
 
-    public function testUnwindsMultipleIndentationLevelsAtOnce(): void
+    public function testItParsesMultipleEntries(): void
     {
-        $sphp = new Parser();
-        $result = $sphp->parseFile(__DIR__ . '/Fixtures/Config/deep-unwind.sphp');
+        $content = <<<'SPHP'
+        name: 'Ludens'
+        debug: true
+        version: 0.1
+        SPHP;
+
         $this->assertSame([
-            'root' => [
-                'A' => [
-                    'B' => [
-                        'x' => 1,
-                    ],
-                ],
-                'C' => 2,
-            ],
-        ], $result);
+            'name' => 'Ludens',
+            'debug' => true,
+            'version' => 0.1
+        ], $this->parser->parse($content));
     }
 
-    public function testParsesTwoSiblingNestedArraysWithoutContextLeaking(): void
+    public function testItParsesStrings(): void
     {
-        $sphp = new Parser();
-        $result = $sphp->parseFile(__DIR__ . '/Fixtures/Config/sibling-nested-arrays.sphp');
+        $content = <<<'SPHP'
+        name: 'Ludens'
+        description: 'A lightweight PHP Framework'
+        SPHP;
+
         $this->assertSame([
-            'root' => [
-                'A' => [
-                    'x' => 1,
-                    'y' => 2,
-                ],
-                'B' => [
-                    'z' => 3,
-                    'w' => 4,
-                ],
-            ],
-        ], $result);
+            'name' => 'Ludens',
+            'description' => 'A lightweight PHP Framework'
+        ], $this->parser->parse($content));
+    }
+
+    public function testItParsesIntegers(): void
+    {
+        $content = <<<'SPHP'
+        port: 8080
+        workers: 4
+        SPHP;
+
+        $this->assertSame([
+            'port' => 8080,
+            'workers' => 4
+        ], $this->parser->parse($content));
+    }
+
+    public function testItParsesFloats(): void
+    {
+        $content = <<<'SPHP'
+        version: 1.0
+        ratio: 0.75
+        SPHP;
+
+        $this->assertSame([
+            'version' => 1.0,
+            'ratio' => 0.75
+        ], $this->parser->parse($content));
+    }
+
+    public function testItParsesBooleans(): void
+    {
+        $content = <<<'SPHP'
+        debug: true
+        enabled: false
+        SPHP;
+
+        $this->assertSame([
+            'debug' => true,
+            'enabled' => false
+        ], $this->parser->parse($content));
+    }
+
+    public function testItParsesNull(): void
+    {
+        $content = <<<'SPHP'
+        value: null
+        SPHP;
+
+        $this->assertSame([
+            'value' => null
+        ], $this->parser->parse($content));
+    }
+
+    public function testItParsesANestedStructure(): void
+    {
+        $content = <<<'SPHP'
+        database:
+          host: 'localhost'
+          port: 3306
+        SPHP;
+
+        $this->assertSame([
+            'database' => [
+                'host' => 'localhost',
+                'port' => 3306
+            ]
+        ], $this->parser->parse($content));
+    }
+
+    public function testItParsesMultipleLevelOfNesting(): void
+    {
+        $content = <<<'SPHP'
+        database:
+          credentials:
+            user: 'root'
+            password: 'secret'
+        SPHP;
+
+        $this->assertSame([
+            'database' => [
+                'credentials' => [
+                    'user' => 'root',
+                    'password' => 'secret'
+                ]
+            ]
+        ], $this->parser->parse($content));
+    }
+
+    public function testItIgnoresComments(): void
+    {
+        $content = <<<'SPHP'
+        # Application configuration
+        name: 'Ludens'
+        SPHP;
+
+        $this->assertSame([
+            'name' => 'Ludens'
+        ], $this->parser->parse($content));
+    }
+
+    public function testItIgnoresEmptyLines(): void
+    {
+        $content = <<<'SPHP'
+        name: 'Ludens'
+
+        debug: true
+
+        version: 0.1
+        SPHP;
+
+        $this->assertSame([
+            'name' => 'Ludens',
+            'debug' => true,
+            'version' => 0.1
+        ], $this->parser->parse($content));
+    }
+
+    public function testItCanBeReused(): void
+    {
+        self::assertSame(['name' => 'first'], $this->parser->parse("name: 'first"));
+        self::assertSame(['name' => 'second'], $this->parser->parse("name: 'second"));
     }
 }

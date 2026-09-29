@@ -82,7 +82,7 @@ final class Parser
              * no duplicated key in the SPHP files
              */
             if (true === isset($result[$identifier])) {
-                throw new UnexpectedValueException(\sprintf(
+                throw new ConfigurationFormatException(\sprintf(
                     "Duplicated key %s provided",
                     $identifier
                 ));
@@ -157,7 +157,7 @@ final class Parser
              * no duplicated key in the SPHP files
              */
             if (true === isset($result[$identifier])) {
-                throw new UnexpectedValueException(\sprintf(
+                throw new ConfigurationFormatException(\sprintf(
                     "Duplicated key %s provided",
                     $identifier
                 ));

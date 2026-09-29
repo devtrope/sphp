@@ -1,4 +1,0 @@
-services:
-  version: 1.4
-  debug: true
-  user: null
