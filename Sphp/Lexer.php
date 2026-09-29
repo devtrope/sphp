@@ -5,6 +5,7 @@ namespace Sphp;
 use Sphp\Support\Grammar;
 use Sphp\Token;
 use Sphp\Token\LexerToken;
+use UnexpectedValueException;
 
 final class Lexer
 {
@@ -93,7 +94,15 @@ final class Lexer
                 continue;
             }
 
-            $this->position++;
+            /**
+             * If we're at this point in the loop that means that no character is matching what we're wainting for on a valid
+             * SPHP file, so we throw an Exception, no need to go further
+             */
+            throw new UnexpectedValueException(\sprintf(
+                'Invalid character %s on line %s',
+                $character,
+                $this->line
+            ));
         }
 
         $tokens[] = new Token\EndOfFileToken($this->line);
