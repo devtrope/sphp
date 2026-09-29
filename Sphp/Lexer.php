@@ -49,7 +49,10 @@ final class Lexer
 
             if (ctype_space($character)) {
                 $spaces = 0;
-                while (ctype_space($this->input[$this->position])) {
+                while (
+                    $this->position < \strlen($this->input) &&
+                    ctype_space($this->input[$this->position])
+                ) {
                     $spaces++;
                     $this->position++;
                 }
@@ -57,6 +60,12 @@ final class Lexer
                 if ($spaces >= self::MINIMUM_INDENTATION_WIDTH) {
                     $tokens[] = new Token\IndentationToken($spaces, $this->line);
                 }
+
+                /**
+                 * TODO: Fix typo, if the file is incorrect with spaces in the middle of a key value line for example, or in the end of the file,
+                 * the Lexer will return an indentation token and the parser will throw a configuration error because the file is not formated
+                 * correctly, so we'll need to check the context of the spaces BEFORE adding an indentation token in this condition.
+                 */
                 
                 continue;
             }
