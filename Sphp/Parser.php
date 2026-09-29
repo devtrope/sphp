@@ -54,6 +54,7 @@ final class Parser
      * Transform a SPHP string into a PHP array
      *
      * @param string $content
+     * @throws UnexpectedValueException
      * @return array<string, mixed>
      */
     private function parseSPHPToPHP(string $content): array
@@ -75,6 +76,17 @@ final class Parser
             LexerType::EOF !== $this->peek()->getType()
         ) {
             [$identifier, $value] = $this->parseEntry();
+            /**
+             * PHP doesn't provide an error if a key is duplicated in an associative array, but it can be
+             * painfull to debug if the array is big, so to avoid it in SPHP we want to make sure that there's
+             * no duplicated key in the SPHP files
+             */
+            if (true === isset($result[$identifier])) {
+                throw new UnexpectedValueException(\sprintf(
+                    "Duplicated key %s provided",
+                    $identifier
+                ));
+            }
             $result[$identifier] = $value;
         }
         return $result;
@@ -139,6 +151,17 @@ final class Parser
         ) {
             $this->consume();
             [$identifier, $value] = $this->parseEntry();
+            /**
+             * PHP doesn't provide an error if a key is duplicated in an associative array, but it can be
+             * painfull to debug if the array is big, so to avoid it in SPHP we want to make sure that there's
+             * no duplicated key in the SPHP files
+             */
+            if (true === isset($result[$identifier])) {
+                throw new UnexpectedValueException(\sprintf(
+                    "Duplicated key %s provided",
+                    $identifier
+                ));
+            }
             $result[$identifier] = $value;
         }
 

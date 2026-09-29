@@ -43,6 +43,13 @@ final class Lexer
             $character = $this->input[$this->position];
 
             if (Grammar::NEW_LINE === $character) {
+                /**
+                 * TODO: create a specific NewLineToken to avoid this kind of things in SPHP files:
+                 *     foo: 'bar' bar: 'foo'
+                 * 
+                 * Two (or more) key values on the same line are supposed to be invalid but currently it's possible because the Parser says so, after
+                 * a value, an identifier is expected and with this example, it's correct even tough it's on the same line
+                 */
                 $this->line++;
                 $this->position++;
                 continue;
