@@ -17,8 +17,8 @@ final class BooleanToken extends LexerToken
     }
 
     #[Override]
-    public function getValue(): bool
+    public function getValue(): bool|null
     {
-        return (bool)$this->value;
+        return filter_var($this->value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
     }
 }
